@@ -19,7 +19,7 @@ console.log(
 
 // Use the Gemini model specified in env or default to gemini-2.0-flash
 const modelName = process.env.GEMINI_MODEL || "gemini-2.0-flash";
-// console.log(`Using Gemini model: ${modelName}`);
+console.log(`Using Gemini model: ${modelName}`);
 
 // Create the Gemini client with correct library
 let genAI;
@@ -48,7 +48,10 @@ async function fileToBase64(filePath) {
 }
 
 // Helper function to retry API calls with exponential backoff
+// Uses longer delays (10s, 30s, 60s) to properly wait out per-minute rate limits
 async function generateContentWithRetry(model, request, maxRetries = 3) {
+  const retryDelays = [10000, 30000, 60000]; // 10s, 30s, 60s
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`🔄 Attempt ${attempt}/${maxRetries} - Calling Gemini API...`);
@@ -57,20 +60,21 @@ async function generateContentWithRetry(model, request, maxRetries = 3) {
       return result;
     } catch (error) {
       console.log(`❌ Attempt ${attempt} failed:`, error.message);
-      
+
       // Check if it's a retryable error (503, 429, or overloaded)
-      const isRetryable = error.message.includes('503') || 
-                         error.message.includes('overloaded') || 
-                         error.message.includes('429') ||
-                         error.message.includes('rate limit');
-      
+      const isRetryable = error.message.includes('503') ||
+        error.message.includes('overloaded') ||
+        error.message.includes('429') ||
+        error.message.includes('rate limit') ||
+        error.message.includes('quota');
+
       if (isRetryable && attempt < maxRetries) {
-        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 2s, 4s, 8s
-        console.log(`⏳ Waiting ${delay}ms before retry...`);
+        const delay = retryDelays[attempt - 1] || 60000;
+        console.log(`⏳ Rate limited! Waiting ${delay / 1000}s before retry...`);
         await new Promise(resolve => setTimeout(resolve, delay));
         continue;
       }
-      
+
       // If not retryable or max retries reached, throw the error
       throw error;
     }

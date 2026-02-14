@@ -6,7 +6,7 @@ Grocery Vision is a smart inventory assistant that helps you identify grocery it
 
 ## Features
 
-- **Item Detection**: Quickly identify grocery items from photos
+- **Item Detection**: Quickly identify fruits/grocery items from photos
 - **Freshness Analysis**: Get shelf-life estimates for fresh produce
 - **Dark Mode**: Comfortable viewing in any environment
 - **Multiple Input Methods**: Use your camera or upload existing images
@@ -72,7 +72,7 @@ Grocery Vision is a smart inventory assistant that helps you identify grocery it
 
 ## Usage
 
-1. **Capture Image**: Use the camera tab to take a photo of grocery items or produce
+1. **Capture Image**: Use the camera tab to take a photo of fruit/grocery items or produce
 2. **Upload Image**: Alternatively, upload an existing image
 3. **View Results**: See detected items and freshness information in the tables below
 4. **Dark/Light Mode**: Toggle between dark and light modes using the sun/moon icon
@@ -109,6 +109,41 @@ grocery-vision/
 - **Backend Not Running**: Make sure the backend server is running on port 5000
 - **Image Upload Errors**: Ensure the image is in a supported format (JPG, PNG, etc.)
 - **Request Timeout**: Try using a smaller image or check your internet connection
+
+## Access from your phone (same Wi‑Fi)
+
+1. Find your Mac's IP address:
+
+   ```bash
+   ipconfig getifaddr en0
+   ```
+
+   If `en0` shows nothing, try `en1`.
+
+2. Start the backend (binds to all interfaces):
+
+   ```bash
+   cd backend
+   npm run dev
+   ```
+
+3. In a new terminal, start the frontend (Vite listens on LAN):
+
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+4. On your phone (connected to the same Wi‑Fi), open:
+
+   ```
+   http://<your-mac-ip>:3000
+   ```
+
+Notes:
+
+- The frontend is already configured to proxy `/api` to the backend, so no CORS or extra config is needed.
+- If the page doesn't load, ensure macOS firewall allows incoming connections for Node/Vite (System Settings → Network → Firewall).
 
 ## License
 

@@ -33,25 +33,19 @@ const FreshnessTable = ({ freshProduce, darkMode }) => {
     }
   };
 
-  // Function to determine freshness badge color
+  // Function to determine freshness badge color with gradients
   const getFreshnessBadgeColors = (lifespan) => {
     if (!lifespan)
-      return darkMode
-        ? "bg-gray-700 text-gray-300"
-        : "bg-gray-100 text-gray-800";
+      return "bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-lg";
 
     const days = parseInt(lifespan.match(/\d+/)?.[0] || "0");
 
     if (days <= 1) {
-      return darkMode ? "bg-red-900 text-red-200" : "bg-red-100 text-red-800";
+      return "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/50 animate-pulse";
     } else if (days <= 3) {
-      return darkMode
-        ? "bg-yellow-900 text-yellow-200"
-        : "bg-yellow-100 text-yellow-800";
+      return "bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg shadow-yellow-500/50";
     } else {
-      return darkMode
-        ? "bg-green-900 text-green-200"
-        : "bg-green-100 text-green-800";
+      return "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/50";
     }
   };
 
@@ -92,21 +86,24 @@ const FreshnessTable = ({ freshProduce, darkMode }) => {
   };
 
   return (
-    <div className="overflow-hidden rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300">
+    <div className="overflow-hidden asymmetric-rounded-alt shadow-2xl border-2 border-gray-200 dark:border-gray-700 transition-all duration-500 organic-shadow">
       {/* Table header with animated gradient */}
       <div
         className={`py-4 px-6 ${
           darkMode
-            ? "bg-gradient-to-r from-blue-900/20 to-purple-900/20"
-            : "bg-gradient-to-r from-blue-50 to-purple-50"
+            ? "bg-gradient-to-r from-green-900/20 via-emerald-900/20 to-lime-900/20"
+            : "bg-gradient-to-r from-green-50 via-emerald-50 to-lime-50"
         }`}
       >
         <h3 className="text-lg font-bold flex items-center gap-2 text-gray-800 dark:text-white">
-          <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+          <span className="text-2xl">🍏</span>
+          <Sparkles className="h-5 w-5 text-green-600 dark:text-green-400" />
           Fresh Produce Analysis
+          <span className="text-2xl">🥗</span>
         </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Detailed assessment of produce freshness and expected shelf life
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">
+          <span className="text-base">🔍</span>
+          AI-powered freshness assessment and shelf life prediction
         </p>
       </div>
 
@@ -155,30 +152,33 @@ const FreshnessTable = ({ freshProduce, darkMode }) => {
               freshProduce.map((item, index) => (
                 <tr
                   key={index}
-                  className={`transition-all duration-200 ${
-                    darkMode ? "hover:bg-gray-700/50" : "hover:bg-gray-50"
-                  } ${getRowGradient(item.expectedLifespan)}`}
+                  className={`transition-all duration-500 magnetic-hover ${
+                    darkMode ? "hover:bg-gradient-to-r hover:from-green-900/20 hover:to-emerald-900/20" : "hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50"
+                  } ${getRowGradient(item.expectedLifespan)} stagger-fade-in`}
+                  style={{animationDelay: `${index * 0.08}s`}}
                 >
-                  <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
-                    {index + 1}
+                  <td className="whitespace-nowrap px-4 py-4 text-sm">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold shadow-lg">
+                      {index + 1}
+                    </div>
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500 dark:text-gray-300">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-500 dark:text-gray-300 font-medium">
                     {formatTimestamp(item.timestamp)}
                   </td>
-                  <td className="px-4 py-3 text-sm font-medium">
-                    <div className="flex items-center">
-                      <span className="mr-2 text-lg" aria-hidden="true">
+                  <td className="px-4 py-4 text-sm font-bold">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl animate-bounce" aria-hidden="true">
                         {getFreshnessEmoji(item.expectedLifespan)}
                       </span>
-                      <span className="text-gray-900 dark:text-white">
+                      <span className="text-gray-900 dark:text-white text-base">
                         {item.produce}
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-300">
+                  <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-300">
                     <div>
                       <p
-                        className={`${
+                        className={`leading-relaxed ${
                           expandedRows[index]
                             ? "whitespace-normal break-words"
                             : "line-clamp-2"
@@ -189,16 +189,16 @@ const FreshnessTable = ({ freshProduce, darkMode }) => {
                       {item.freshness && item.freshness.length > 60 && (
                         <button
                           onClick={() => toggleRowExpanded(index)}
-                          className="mt-2 flex items-center text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors duration-200 hover:underline"
+                          className="mt-2 flex items-center text-xs font-bold text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text hover:from-blue-500 hover:to-purple-500 transition-all duration-200 smooth-scale"
                         >
                           {expandedRows[index] ? (
                             <>
-                              <ChevronUp className="h-3 w-3 mr-1" />
+                              <ChevronUp className="h-4 w-4 mr-1 text-blue-600" />
                               See less
                             </>
                           ) : (
                             <>
-                              <ChevronDown className="h-3 w-3 mr-1" />
+                              <ChevronDown className="h-4 w-4 mr-1 text-purple-600" />
                               See more
                             </>
                           )}
@@ -206,9 +206,9 @@ const FreshnessTable = ({ freshProduce, darkMode }) => {
                       )}
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm">
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold shadow-sm transition-all ${getFreshnessBadgeColors(
+                      className={`inline-block rounded-full px-4 py-1.5 text-sm font-bold smooth-scale ${getFreshnessBadgeColors(
                         item.expectedLifespan
                       )}`}
                     >
@@ -226,24 +226,31 @@ const FreshnessTable = ({ freshProduce, darkMode }) => {
                   }`}
                 >
                   <div className="flex flex-col items-center justify-center">
-                    <div className="relative">
-                      <Leaf className="h-16 w-16 mb-4 opacity-20" />
-                      <Activity className="h-6 w-6 absolute bottom-4 right-0 text-gray-400 dark:text-gray-500" />
+                    <div className="relative mb-4">
+                      <div className="text-6xl mb-4 animate-bounce">🍓</div>
+                      <div className="absolute -top-2 -right-2 text-3xl animate-bounce" style={{animationDelay: '0.2s'}}>🍇</div>
+                      <div className="absolute -bottom-2 -left-2 text-3xl animate-bounce" style={{animationDelay: '0.4s'}}>🥝</div>
+                      <div className="absolute top-0 -left-4 text-2xl animate-bounce" style={{animationDelay: '0.6s'}}>🍑</div>
                     </div>
-                    <p className="font-medium text-lg">
-                      No fresh produce detected
+                    <p className="font-bold text-xl mb-2">
+                      No fresh produce detected yet
                     </p>
-                    <p className="mt-2 text-sm max-w-md">
-                      Capture an image with fruits or vegetables to begin your
-                      freshness analysis
+                    <p className="mt-2 text-sm max-w-md flex items-center gap-2 justify-center">
+                      <span className="text-xl">📸</span>
+                      Capture an image with fruits or vegetables to begin your freshness analysis
                     </p>
-                    <div className="mt-6 bg-gray-100 dark:bg-gray-700 rounded-lg p-4 text-xs text-left max-w-md">
-                      <p className="font-medium mb-2 flex items-center gap-1">
-                        <Sparkles className="h-3 w-3" /> Pro tip
+                    <div className="mt-6 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 asymmetric-rounded-alt p-5 text-xs text-left max-w-md border-2 border-green-200 dark:border-green-800 organic-shadow">
+                      <p className="font-bold mb-2 flex items-center gap-2 text-green-800 dark:text-green-300">
+                        <span className="text-lg">🌟</span> Freshness Detection Tips
                       </p>
-                      <p>
-                        For best results, ensure your produce items are clearly
-                        visible and well-lit.
+                      <p className="text-gray-700 dark:text-gray-300">
+                        <span className="text-base">☀️</span> Good lighting helps detect color changes
+                        <br/>
+                        <span className="text-base">📐</span> Show multiple angles for accurate assessment
+                        <br/>
+                        <span className="text-base">🍎</span> Works best with whole fruits and vegetables
+                        <br/>
+                        <span className="text-base">⏱️</span> Get instant shelf-life predictions!
                       </p>
                     </div>
                   </div>

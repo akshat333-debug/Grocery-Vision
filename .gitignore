@@ -46,3 +46,13 @@ coverage/
 *.tmp
 *.temp
 
+
+# Python
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+*.pyc
+venv/
+*/venv/
+*.pt
+ml-backend/uploads/*

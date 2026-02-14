@@ -13,12 +13,34 @@ const {
 
 // Initialize express app
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
-// CORS middleware - allow requests from frontend
+// CORS middleware - allow requests from frontend, local network, and Cloudflare tunnels
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173"],
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      // Allow localhost and local network IPs
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:5173',
+      ];
+      
+      // Allow any origin from local network (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+      // OR any Cloudflare tunnel domain (*.trycloudflare.com)
+      if (
+        origin.match(/^http:\/\/(192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}):\d+$/) ||
+        origin.match(/^https:\/\/.*\.trycloudflare\.com$/) ||
+        allowedOrigins.includes(origin)
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: false,
@@ -149,9 +171,23 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
+// Start server - listen on all network interfaces
+app.listen(PORT, '0.0.0.0', () => {
+  const os = require('os');
+  const networkInterfaces = os.networkInterfaces();
+  
   console.log(`✅ Server running on port ${PORT}`);
-  console.log(`📡 API available at http://localhost:${PORT}`);
-  console.log(`📁 Uploads directory: ${uploadsDir}`);
+  console.log(`📡 Local: http://localhost:${PORT}`);
+  
+  // Display all network addresses
+  console.log(`\n📱 Access from your phone using any of these addresses:`);
+  Object.keys(networkInterfaces).forEach((interfaceName) => {
+    networkInterfaces[interfaceName].forEach((interface) => {
+      if (interface.family === 'IPv4' && !interface.internal) {
+        console.log(`   http://${interface.address}:${PORT}`);
+      }
+    });
+  });
+  
+  console.log(`\n📁 Uploads directory: ${uploadsDir}`);
 });
